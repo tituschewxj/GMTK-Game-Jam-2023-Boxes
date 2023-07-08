@@ -46,17 +46,14 @@ public class Controller : MonoBehaviour
     
         }
     }
-
     void MoveCurrentPosition((int x, int y) direction) {
         // Update the active box
         if (!currentLevel.MoveControlledBox(direction)) {
             return;
         }
 
+        // Wait until no active transitions before moving the player
         // Move the player if the active box really moves
-        currentLevel.MovePlayer();
-
-        // Update history
-        currentLevel.PushToHistory();
+        StartCoroutine(currentLevel.MovePlayer());
     }
 }

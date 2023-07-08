@@ -22,6 +22,7 @@ public class Level : MonoBehaviour
     Grid staticGrid;
     // Stores whether transitions are happening; cannot move while transitioning
     public bool isInTransition;
+    int transitionCount = 0;
 
     // Stores the active box, which is being controlled currently.
     [HideInInspector]
@@ -190,7 +191,12 @@ public class Level : MonoBehaviour
         Debug.LogError("No box to switch with! Cannot switch!");
     }
 
-    public void MovePlayer() {
+    public IEnumerator MovePlayer() {
+        // Wait until current transition ends:
+        while (isInTransition) {
+            yield return null;
+        }
+
         (int x, int y) newPosition = player.GetNewPosition();
         
         // Switch player direction if blocked
@@ -212,7 +218,7 @@ public class Level : MonoBehaviour
                 // The order of the pushing has to be from the end
                 for (int j = 0; j < startBoxes.Length; j++) {
                     if (startBoxes[j].IsAtCoordinates(newPosition) && Constants.boxTypeProps[(int) startBoxes[j].boxType].isPushable) {
-                        startBoxes[j].MoveToPosition(newPosition);
+                        startBoxes[j].MoveToPosition(newPosition, currentGrid);
                         break;
                     }
                 }
@@ -222,5 +228,19 @@ public class Level : MonoBehaviour
             player.MovePlayer(currentGrid);
             break;
         }
+
+        // Update history at the end of every player turn
+        PushToHistory();
+    }
+
+    // Tweening helpers
+    public void FinishMovement() {
+        if (--transitionCount == 0) isInTransition = false;
+    }
+
+    // Tweening helpers
+    public void StartMovement() {
+        isInTransition = true;
+        transitionCount++;
     }
 }

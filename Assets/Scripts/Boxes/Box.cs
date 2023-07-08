@@ -31,9 +31,12 @@ public class Box: MonoBehaviour
         // Move the current position
         position.x += direction.x;
         position.y += direction.y;
-        // transform.position = new(position.x, position.y);
-        LeanTween.move(gameObject, new Vector3(position.x, position.y), Constants.transitionTime);
-
+    
+        // Tween
+        level.StartMovement();
+        LeanTween.move(gameObject, new Vector3(position.x, position.y), Constants.transitionTime).
+            setOnComplete(level.FinishMovement);
+        
         // If active box, also move cursor
         if (isActiveBox) {
             level.cursor.MoveBox(direction);

@@ -20,7 +20,7 @@ public static class Constants
         moveDown = directions[3];
 
     // Stores the transition time for each transition.
-    public readonly static float transitionTime = 0.2f;
+    public readonly static float transitionTime = 0.05f;
 
     // Stores the keys input.
     public readonly static KeyCode 
