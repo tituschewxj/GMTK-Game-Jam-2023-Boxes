@@ -216,13 +216,15 @@ public class Level : MonoBehaviour
             while (newPosition != player.GetNewPosition() ) {
                 // TODO: REFACTOR: push box. FIXME!
                 // The order of the pushing has to be from the end
+                (int x, int y) prevPosition = player.MoveInDirection(newPosition, inverse: true);
                 for (int j = 0; j < startBoxes.Length; j++) {
-                    if (startBoxes[j].IsAtCoordinates(newPosition) && Constants.boxTypeProps[(int) startBoxes[j].boxType].isPushable) {
+                    if (startBoxes[j].IsAtCoordinates(prevPosition) && 
+                        Constants.boxTypeProps[(int) startBoxes[j].boxType].isPushable) {
                         startBoxes[j].MoveToPosition(newPosition, currentGrid);
                         break;
                     }
                 }
-                newPosition = player.MoveInDirection(newPosition, inverse: true);
+                newPosition = prevPosition;
             }
             // can move
             player.MovePlayer(currentGrid);

@@ -30,7 +30,7 @@ public class BoxProps
         return new BoxProps(isPushable: true, isBlockable: true);
     }
     public static BoxProps Player() {
-        return new BoxProps();
+        return new BoxProps(isBlockable: true);
     }
     public static BoxProps Wall() {
         return new BoxProps(isStationary: true, isBlockable: true);
