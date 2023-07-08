@@ -33,6 +33,20 @@ public class Player
         return newPosition;
     }
 
+    // Gets the position in the opposite of the current direction, assuming that the direction didn't change.
+    public (int x, int y) GetPrevPosition() {
+        (int x, int y) newPosition = box.position;
+        newPosition.x -= currentDirection.x;
+        newPosition.y -= currentDirection.y;
+        return newPosition;
+    }
+
+    // Returns the new position in that direction, or inversed.
+    public (int x, int y) MoveInDirection((int x, int y) position, bool inverse = false) {
+        position.x += currentDirection.x * (inverse ? -1 : 1);
+        position.y += currentDirection.y * (inverse ? -1 : 1);
+        return position;
+    }
     public void SwitchDirection() {
         directionIndex = (directionIndex + 1) % Constants.directions.Length;
         currentDirection = Constants.directions[directionIndex];

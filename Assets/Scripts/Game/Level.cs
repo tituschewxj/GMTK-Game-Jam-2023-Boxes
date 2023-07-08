@@ -141,7 +141,6 @@ public class Level : MonoBehaviour
         if (IsOtherControllableBox(newPosition)) {
             // move the active position only and switch the active box.
             currentPosition = newPosition;
-            cursor.MoveBox(direction);
             SwitchActiveBox(currentPosition);
             return false;
         }
@@ -153,7 +152,6 @@ public class Level : MonoBehaviour
 
         // Move box
         currentPosition = newPosition;
-        cursor.MoveBox(direction);
         activeBox.MoveBox(direction, currentGrid);
 
         // Update grid
@@ -179,11 +177,12 @@ public class Level : MonoBehaviour
     public void SwitchActiveBox((int x, int y) coordinates) {
         // Find new active box:
         for (int i = 0; i < startBoxes.Length; i++) {
-            if (startBoxes[i].IsAtCoordinates(coordinates) && !Constants.boxTypeProps[(int) startBoxes[i].boxType].isIgnored) {
+            if (startBoxes[i].IsAtCoordinates(coordinates) && Constants.boxTypeProps[(int) startBoxes[i].boxType].isControllable) {
                 activeBox.isActiveBox = false;
                 startBoxes[i].isActiveBox = true;
                 activeBox = startBoxes[i];
-                currentPosition = activeBox.position;
+                currentPosition = coordinates;
+                cursor.MoveToPosition(coordinates);
                 return;
             }
         }
@@ -194,21 +193,34 @@ public class Level : MonoBehaviour
     public void MovePlayer() {
         (int x, int y) newPosition = player.GetNewPosition();
         
-        if (IsCellPushable(newPosition)) {
-            // TODO: Recursively check if the box is pushable
-            return;
-        }
-
         // Switch player direction if blocked
         for (int i = 0; i < Constants.directions.Length; i++) {
+            // Iteratively check if the next box in line is pushable
+            while (IsCellPushable(newPosition)) {
+                newPosition = player.MoveInDirection(newPosition);
+            }
             if (IsCellBlocked(newPosition)) {
+                // cannot move in that direction if blocked, switch direction.
                 player.SwitchDirection();
                 newPosition = player.GetNewPosition();
-            } else {
-                // can move
-                player.MovePlayer(currentGrid);
-                break;
+                continue;
+            } 
+
+            // push all boxes in the line if any
+            while (newPosition != player.GetNewPosition() ) {
+                // TODO: REFACTOR: push box. FIXME!
+                // The order of the pushing has to be from the end
+                for (int j = 0; j < startBoxes.Length; j++) {
+                    if (startBoxes[j].IsAtCoordinates(newPosition) && Constants.boxTypeProps[(int) startBoxes[j].boxType].isPushable) {
+                        startBoxes[j].MoveToPosition(newPosition);
+                        break;
+                    }
+                }
+                newPosition = player.MoveInDirection(newPosition, inverse: true);
             }
+            // can move
+            player.MovePlayer(currentGrid);
+            break;
         }
     }
 }
