@@ -245,7 +245,9 @@ public class Level : MonoBehaviour
         levelHistory.UpdateCurrentPosition(coordinates);
     }
     public void Undo() {
-        levelHistory.Undo();
+        if (!levelHistory.Undo()) {
+            audioManager.PlayCannot();
+        }
         player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
         activeBox.SetPosition(levelHistory.currentPosition);
         doorManager.UpdateDoors(levelHistory);

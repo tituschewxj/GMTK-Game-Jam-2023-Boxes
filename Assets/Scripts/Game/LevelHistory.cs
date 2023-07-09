@@ -50,20 +50,24 @@ public class LevelHistory
     }
 
     // Undo the last move.
-    public void Undo(bool renderGrid = true) {
+    // Returns true if successful
+    public bool Undo(bool renderGrid = true) {
         // FIXME: doesn't detect correctly
         if (historyIndex <= 1) {
             Debug.LogWarning("GridHistory or PositionHistory cannot be empty! Cannot undo.");
-            return;
+            return false;
         }
         if (!gridHistory.TryPop(out currentGrid)) {
             Debug.LogWarning("GridHistory cannot be empty! Cannot undo.");
+            return false;
         }
         if (!positionHistory.TryPop(out currentPosition)) {
             Debug.LogWarning("PositionHistory cannot be empty! Cannot undo.");
+            return false;
         }
         if (!playerDirection.TryPop(out currentPlayerDirection)) {
             Debug.LogWarning("PositionHistory cannot be empty! Cannot undo.");
+            return false;
         }
 
         historyIndex--;
@@ -72,6 +76,7 @@ public class LevelHistory
         if (renderGrid) {
             currentGrid.RenderNewGrid();
         }
+        return true;
     }
 
 

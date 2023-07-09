@@ -46,7 +46,10 @@ public class Box: MonoBehaviour
         level.StartMovement();
         LeanTween.move(gameObject, new Vector2(position.x, position.y), Constants.transitionTime).
             setOnComplete(level.FinishMovement);
-        
+        LTSeq seq = LeanTween.sequence();
+        seq.insert(LeanTween.scale(gameObject, Vector2.one * 0.9f, Constants.transitionTime));
+        seq.insert(LeanTween.scale(gameObject, Vector2.one, Constants.transitionTime));
+
         // If active box, also move cursor and set new currentPosition. There is only one active box.
         if (isActiveBox) {
             level.cursor.MoveBox(direction);
