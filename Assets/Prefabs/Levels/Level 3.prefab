@@ -1155,7 +1155,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5508362309665076512, guid: ea74c700dae8ceb42bb5515b2be351ed, type: 3}
       propertyPath: isActiveBox
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5508362309665076514, guid: ea74c700dae8ceb42bb5515b2be351ed, type: 3}
       propertyPath: m_RootOrder

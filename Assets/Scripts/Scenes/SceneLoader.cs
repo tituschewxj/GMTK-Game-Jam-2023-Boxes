@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
+    // Previous scene name is actually the next scene name!!!
     [SerializeField]
     string previousSceneName;
     [SerializeField]

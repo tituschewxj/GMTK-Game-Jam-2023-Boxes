@@ -115,6 +115,7 @@ public class Level : MonoBehaviour
 
         // New history for level:
         levelHistory = new(width, height, ref startBoxes, activeBox.position, player);
+        doorManager.UpdateDoors(levelHistory);
     }
 
 

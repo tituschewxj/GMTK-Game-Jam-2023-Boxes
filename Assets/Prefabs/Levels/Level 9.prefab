@@ -156,6 +156,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8464704769793833122, guid: 88f32547bd6d3eb46ad00b3f8470425d, type: 3}
   m_PrefabInstance: {fileID: 129846036654878898}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8409876831298373651 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8464704769793833121, guid: 88f32547bd6d3eb46ad00b3f8470425d, type: 3}
+  m_PrefabInstance: {fileID: 129846036654878898}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf5ab2004ca8a9c44b30d140bef50d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &487229953520941543
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -528,6 +539,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8464704769793833122, guid: 88f32547bd6d3eb46ad00b3f8470425d, type: 3}
   m_PrefabInstance: {fileID: 1678088983500726655}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7075552117730253278 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8464704769793833121, guid: 88f32547bd6d3eb46ad00b3f8470425d, type: 3}
+  m_PrefabInstance: {fileID: 1678088983500726655}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf5ab2004ca8a9c44b30d140bef50d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2091700208666387030
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2117,6 +2139,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3430585234185340271}
     m_Modifications:
+    - target: {fileID: 7832244432877637216, guid: 36fe958e0e5e848418e6264489f621c7, type: 3}
+      propertyPath: otherBox
+      value: 
+      objectReference: {fileID: 8409876831298373651}
     - target: {fileID: 7832244432877637218, guid: 36fe958e0e5e848418e6264489f621c7, type: 3}
       propertyPath: m_Name
       value: Button (1)
@@ -2365,6 +2391,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3430585234185340271}
     m_Modifications:
+    - target: {fileID: 7832244432877637216, guid: 36fe958e0e5e848418e6264489f621c7, type: 3}
+      propertyPath: otherBox
+      value: 
+      objectReference: {fileID: 7075552117730253278}
     - target: {fileID: 7832244432877637218, guid: 36fe958e0e5e848418e6264489f621c7, type: 3}
       propertyPath: m_Name
       value: Button
