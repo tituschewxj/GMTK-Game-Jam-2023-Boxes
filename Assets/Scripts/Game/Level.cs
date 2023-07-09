@@ -250,6 +250,7 @@ public class Level : MonoBehaviour
         }
         player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
         activeBox.SetPosition(levelHistory.currentPosition);
+        cursor.SetPosition(levelHistory.currentPosition);
         doorManager.UpdateDoors(levelHistory);
     }
 
@@ -257,6 +258,7 @@ public class Level : MonoBehaviour
         levelHistory.Clear();
         player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
         activeBox.SetPosition(levelHistory.currentPosition);
+        cursor.SetPosition(levelHistory.currentPosition);
         doorManager.UpdateDoors(levelHistory);
     }
 }
