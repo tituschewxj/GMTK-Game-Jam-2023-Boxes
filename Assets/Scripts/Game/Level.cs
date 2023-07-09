@@ -32,15 +32,12 @@ public class Level : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Get the initial state of the level:
+        // Get the initial state of the level, startBoxes should not be modified:
         startBoxes = gameObject.GetComponentsInChildren<Box>();
         // Assign the startBoxes with their index.
         for (int i = 0; i <startBoxes.Length; i++) {
             startBoxes[i].index = i;
         }
-    
-        // New history for level:
-        levelHistory = new(width, height, ref startBoxes);
 
         // Find the active box:
         foreach (Box box in startBoxes) {
@@ -50,8 +47,6 @@ public class Level : MonoBehaviour
                     break;
                 }
                 activeBox = box;
-                UpdateCurrentPosition(activeBox.position);
-                levelHistory.positionHistory.Push(levelHistory.currentPosition);
             }
         }
         if (activeBox == null) {
@@ -110,6 +105,9 @@ public class Level : MonoBehaviour
 
         // Update game state:
         Game.currentState = Game.GameStates.Ongoing;
+
+        // New history for level:
+        levelHistory = new(width, height, ref startBoxes, activeBox.position, player);
     }
 
 
@@ -131,6 +129,9 @@ public class Level : MonoBehaviour
         if (levelHistory.IsCellBlocked(newPosition)) {
             return false;
         }
+
+        // Update history at the start of every turn (which the player can move)
+        levelHistory.PushToHistory();
 
         // Move box and update grid
         UpdateCurrentPosition(newPosition);
@@ -206,16 +207,13 @@ public class Level : MonoBehaviour
             break;
         }
 
+        // Trigger any button interactions
+        doorManager.UpdateDoors(levelHistory);
+
         // Check if goal reached!
         if (player.IsAtGoal(levelHistory)) {
             ui.LevelCompleteTransition(() => StartCoroutine(sceneLoader.LoadPreviousScene()));
         }
-
-        // Trigger any button interactions
-        doorManager.UpdateDoors(levelHistory);
-    
-        // Update history at the end of every player turn
-        levelHistory.PushToHistory();
     }
 
     // Tweening helpers
@@ -234,5 +232,15 @@ public class Level : MonoBehaviour
     }
     public void Undo() {
         levelHistory.Undo();
+        player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
+        activeBox.SetPosition(levelHistory.currentPosition);
+        doorManager.UpdateDoors(levelHistory);
+    }
+
+    public void Restart() {
+        levelHistory.Clear();
+        player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
+        activeBox.SetPosition(levelHistory.currentPosition);
+        doorManager.UpdateDoors(levelHistory);
     }
 }

@@ -26,13 +26,13 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(Constants.undo)) {
-            currentLevel.Undo();
-        }
-
         // If is current turn allow input, else wait until transition is over.
         if (currentLevel.isInTransition) {
             return;
+        }
+
+        if (Input.GetKeyDown(Constants.undo)) {
+            currentLevel.Undo();
         }
 
         // Can move

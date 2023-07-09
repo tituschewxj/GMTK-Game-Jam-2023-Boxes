@@ -61,4 +61,13 @@ public class Player
 
         return true;
     }
+
+    public int GetDirectionIndex() {
+        return directionIndex;
+    }
+
+    public void SetDirectionByIndex(int index) {
+        directionIndex = index;
+        currentDirection = Constants.directions[directionIndex];
+    }
 }

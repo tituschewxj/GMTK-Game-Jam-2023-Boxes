@@ -7,17 +7,23 @@ public class LevelHistory
 {
     // Store the grid history of the current level, which is just a grid of all the positions of the boxes
     readonly Stack<Grid> gridHistory;
-    public Stack<(int x, int y)> positionHistory;
+    readonly Stack<(int x, int y)> positionHistory;
+    readonly Stack<int> playerDirection;
+    // The size of the history.
+    int historyIndex = 0;
     
     // The current position of the controlled box.
     public (int x, int y) currentPosition;
+    public int currentPlayerDirection;
     // Stores the current state of the level as a grid.
     public Grid currentGrid;
     // Store the static boxes in the grid: the boxes that cannot move. This is not stored in the history.
     public Grid staticGrid;
+    readonly Player player;
 
     // Initialiser for the level history
-    public LevelHistory(int width, int height, ref Box[] startBoxes) {
+    public LevelHistory(int width, int height, ref Box[] startBoxes, (int x, int y) startPosition, Player player) {
+
         // Validate width and height;
         if (width <= 0 || height <= 0) {
             Debug.LogError("Invalid width or height for level!");
@@ -26,9 +32,13 @@ public class LevelHistory
         // Get the initial state of the level:
         currentGrid = new(width, height, ref startBoxes);
         staticGrid = new(width, height, ref startBoxes, isStationary: true);
-        gridHistory = new Stack<Grid>();
-        gridHistory.Push(currentGrid);
-        positionHistory = new Stack<(int x, int y)>();
+        this.player = player;
+        UpdateCurrentPosition(startPosition);
+
+        gridHistory = new();
+        positionHistory = new();
+        playerDirection = new();
+        PushToHistory();
     }
     // Clear the grid history, restart the level to the start.
     public void Clear() {
@@ -36,28 +46,41 @@ public class LevelHistory
             Undo(renderGrid: false);
         }
         // Render grid:
+        currentGrid.RenderNewGrid();
     }
 
     // Undo the last move.
     public void Undo(bool renderGrid = true) {
         // FIXME: doesn't detect correctly
-        if (gridHistory.Count <= 1) {
+        if (historyIndex <= 1) {
+            Debug.LogWarning("GridHistory or PositionHistory cannot be empty! Cannot undo.");
+            return;
+        }
+        if (!gridHistory.TryPop(out currentGrid)) {
             Debug.LogWarning("GridHistory cannot be empty! Cannot undo.");
         }
-        gridHistory.Pop();
-        positionHistory.Pop();
-        currentGrid = gridHistory.Peek();
-        currentPosition = positionHistory.Peek();
+        if (!positionHistory.TryPop(out currentPosition)) {
+            Debug.LogWarning("PositionHistory cannot be empty! Cannot undo.");
+        }
+        if (!playerDirection.TryPop(out currentPlayerDirection)) {
+            Debug.LogWarning("PositionHistory cannot be empty! Cannot undo.");
+        }
 
+        historyIndex--;
+        
         // RenderGrid
         if (renderGrid) {
-            
+            currentGrid.RenderNewGrid();
         }
     }
+
 
     // Snap the current state before the start of the player's next turn.
     public void PushToHistory() {
         gridHistory.Push((Grid) currentGrid.Clone());
+        positionHistory.Push(currentPosition);
+        playerDirection.Push(player.GetDirectionIndex());
+        historyIndex++;
     }
 
     public void UpdateCurrentPosition((int x, int y) coordinates) {
