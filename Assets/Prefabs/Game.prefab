@@ -522,6 +522,8 @@ MonoBehaviour:
   goal:
   - {fileID: 8300000, guid: 73757a5102e9f9d408fc56dd6c473b15, type: 3}
   - {fileID: 8300000, guid: ebf926e605468dc46a22fbef3b78afb1, type: 3}
+  undo:
+  - {fileID: 8300000, guid: 7cc44d8d04d855841a9846ede544d298, type: 3}
   audioSources:
   - {fileID: 5326969978201571291}
   - {fileID: 5326969978816759207}

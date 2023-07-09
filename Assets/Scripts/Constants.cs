@@ -32,7 +32,8 @@ public static class Constants
         down = KeyCode.S,
         left = KeyCode.A,
         right = KeyCode.D,
-        undo = KeyCode.R;
+        undo = KeyCode.R,
+        restart = KeyCode.T;
 
     // Represents the different boxes.
     public enum BoxTypes {

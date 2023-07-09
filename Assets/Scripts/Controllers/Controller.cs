@@ -34,6 +34,9 @@ public class Controller : MonoBehaviour
         if (Input.GetKeyDown(Constants.undo)) {
             currentLevel.Undo();
         }
+        if (Input.GetKeyDown(Constants.restart)) {
+            currentLevel.Restart();
+        }
 
         // Can move
         if (Input.GetKeyDown(Constants.up)) {

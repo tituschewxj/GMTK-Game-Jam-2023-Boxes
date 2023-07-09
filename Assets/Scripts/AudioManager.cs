@@ -5,7 +5,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     [SerializeField]
-    AudioClip[] playermove, boxmove, boxswitch, dooropen, doorclose, buttonpress, cannot, sublevel, goal;
+    AudioClip[] playermove, boxmove, boxswitch, dooropen, doorclose, buttonpress, cannot, sublevel, goal, undo;
     [SerializeField]
     AudioSource[] audioSources;
     int currentAudioSourceIndex = 0;
@@ -42,5 +42,8 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayGoal() {
         PlayRandomClip(goal);
+    }
+    public void PlayUndo() {
+        PlayRandomClip(undo);
     }
 }

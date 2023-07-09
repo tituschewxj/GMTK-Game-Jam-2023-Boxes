@@ -79,7 +79,6 @@ public class LevelHistory
         return true;
     }
 
-
     // Snap the current state before the start of the player's next turn.
     public void PushToHistory() {
         gridHistory.Push((Grid) currentGrid.Clone());

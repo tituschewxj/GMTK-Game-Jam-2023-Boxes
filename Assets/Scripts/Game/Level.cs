@@ -249,11 +249,13 @@ public class Level : MonoBehaviour
             audioManager.PlayCannot();
             return;
         }
+        audioManager.PlayUndo();
         Rerender();
     }
 
     public void Restart() {
         levelHistory.Clear();
+        audioManager.PlayUndo();
         Rerender();
     }
     void Rerender() {
