@@ -29,6 +29,7 @@ public class Level : MonoBehaviour
     public Box cursor;
     UI ui;
     SceneLoader sceneLoader;
+    Door doorManager;
 
     // Start is called before the first frame update
     void Start()
@@ -101,6 +102,9 @@ public class Level : MonoBehaviour
             Debug.LogError("No sceneLoader found!");
         }
 
+        // Find doors
+        doorManager = new(ref startBoxes);
+
         // Update game state:
         Game.currentState = Game.GameStates.Ongoing;
     }
@@ -132,9 +136,13 @@ public class Level : MonoBehaviour
         // Check if sublevel
         if (levelHistory.AtSublevelPortal()) {
             // load sublevel based on otherProperty of the box found
-            Box b = GetBox(levelHistory.currentPosition, startBoxes);
+            Game.currentState = Game.GameStates.Transition;
+            Box b = BoxHelper.GetBox(levelHistory.currentPosition, ref startBoxes);
             ui.LoadingSublevelTransition(() => StartCoroutine(sceneLoader.LoadSublevelIndex(b.otherProperty)));
         }
+
+        // Trigger any button interactions
+        doorManager.UpdateDoors(levelHistory);
         return true;
     }
 
@@ -199,6 +207,9 @@ public class Level : MonoBehaviour
         if (player.IsAtGoal(levelHistory)) {
             ui.LevelCompleteTransition(() => StartCoroutine(sceneLoader.LoadPreviousScene()));
         }
+
+        // Trigger any button interactions
+        doorManager.UpdateDoors(levelHistory);
     
         // Update history at the end of every player turn
         levelHistory.PushToHistory();
@@ -220,15 +231,5 @@ public class Level : MonoBehaviour
     }
     public void Undo() {
         levelHistory.Undo();
-    }
-
-    public Box GetBox((int x, int y) coordinates, Box[] boxes) {
-        for (int i = 0; i < boxes.Length; i++) {
-            if (boxes[i].position == coordinates && !Constants.boxTypeProps[(int) boxes[i].boxType].isIgnored) {
-                return boxes[i];
-            }
-        }
-        Debug.LogWarning("GetBox: No box found!");
-        return null;
     }
 }

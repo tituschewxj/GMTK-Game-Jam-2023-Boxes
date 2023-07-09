@@ -68,7 +68,6 @@ public class Grid : ICloneable
         }
         return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Sublevel;
     }
-
     public bool IsCellBlocked((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return false;

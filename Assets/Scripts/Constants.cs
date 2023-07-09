@@ -48,7 +48,7 @@ public static class Constants
         TrapPlayer, // A trap, which ends the game if moved upon by the player
         Trap, // A trap, which ends the game if moved upon by the box or player
         Button, // A button that toggles or enables a door
-        Cursor, // A special box that Indicates the active box that is moved
+        Cursor, // A special box that indicates the active box that is moved
     }
 
     // Map to the various properties of the different boxes.

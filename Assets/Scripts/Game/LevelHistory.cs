@@ -51,7 +51,7 @@ public class LevelHistory
 
         // RenderGrid
         if (renderGrid) {
-
+            
         }
     }
 
@@ -76,6 +76,9 @@ public class LevelHistory
     }
     public bool IsOtherControllableBox((int x, int y) coordinates) {
         return currentGrid.GetCellBoxType(coordinates) == (int) Constants.BoxTypes.BoxControllable;
+    }
+    public bool IsCellButton((int x, int y) coordinates) {
+        return staticGrid.GetCellBoxType(coordinates) == (int) Constants.BoxTypes.Button;
     }
     public bool AtSublevelPortal() {
         return staticGrid.IsCellSublevel(currentPosition);

@@ -16,6 +16,8 @@ public class Box: MonoBehaviour
     // Represents the an other property of the box, e.g.: sublevel index or button toggle door index, etc. 
     // Can be unused: -1
     public int otherProperty = -1;
+    // If another box is linked to this box, e.g.: the door related to the button.
+    public Box otherBox;
     void Awake() {
         position.x = (int) transform.position.x;
         position.y = (int) transform.position.y;
