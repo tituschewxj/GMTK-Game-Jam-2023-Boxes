@@ -7,8 +7,6 @@ public class Level : MonoBehaviour
     // Stores the width and height of the level.
     public int width, height;
 
-
-
     // Store the starting boxes
     Box[] startBoxes; // TODO: refactor to just store movable boxes.
 
@@ -29,13 +27,18 @@ public class Level : MonoBehaviour
     public Box cursor;
     UI ui;
     SceneLoader sceneLoader;
-    Door doorManager;
+    DoorHelper doorManager;
 
     // Start is called before the first frame update
     void Start()
     {
         // Get the initial state of the level:
         startBoxes = gameObject.GetComponentsInChildren<Box>();
+        // Assign the startBoxes with their index.
+        for (int i = 0; i <startBoxes.Length; i++) {
+            startBoxes[i].index = i;
+        }
+    
         // New history for level:
         levelHistory = new(width, height, ref startBoxes);
 

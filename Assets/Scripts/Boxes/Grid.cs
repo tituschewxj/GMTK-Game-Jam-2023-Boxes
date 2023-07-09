@@ -8,35 +8,45 @@ public class Grid : ICloneable
 {
     // Store the width and height of the grid.
     readonly int width, height;
+    
+    readonly Box[] startBoxes;
 
     // Stores a 2D array of the box in every position in the grid.
+    // Stores the index of the boxes in startBoxes, not the boxType!
     readonly int[,] grid;
     public Grid(int width, int height, ref Box[] startBoxes, bool isStationary = false) {
         this.width = width;
         this.height = height;
+        this.startBoxes = startBoxes;
         // New grid
         grid = new int[width, height];
-
-        foreach (Box box in startBoxes) {
+        for (int i = 0; i < grid.GetLength(0); i++) {
+            for (int j = 0; j < grid.GetLength(1); j++) {
+                // Default: empty cell.
+                grid[i, j] = -1;
+            }
+        }
+        for (int i = 0; i < startBoxes.Length; i++) {    
             // Add to grid if it doesn't contain a box already.
-            int boxType = (int) box.boxType;
+            int boxType = (int) startBoxes[i].boxType;
             if (Constants.boxTypeProps[boxType].isIgnored) {
                 continue;
             }
-            if (!IsValidCoordinates(box.position)) {
+            if (!IsValidCoordinates(startBoxes[i].position)) {
                 continue;
             }
-            if (grid[box.position.x, box.position.y] != 0) {
+            if (grid[startBoxes[i].position.x, startBoxes[i].position.y] != -1) {
                 Debug.LogError("Grid already contains a box in that position!");
             } else if (Constants.boxTypeProps[boxType].isStationary == isStationary) {
-                Debug.Log(Constants.boxTypeNames[boxType]);
-                grid[box.position.x, box.position.y] = boxType;
+                // Debug.Log(Constants.boxTypeNames[boxType]);
+                grid[startBoxes[i].position.x, startBoxes[i].position.y] = i;
             }
         }
     }
-    public Grid(int[,] grid) {
+    public Grid(int[,] grid, Box[] startBoxes) {
         width = grid.GetLength(0);
         height = grid.GetLength(1);
+        this.startBoxes = startBoxes;
         this.grid = grid;
     }
     public object Clone()
@@ -47,46 +57,49 @@ public class Grid : ICloneable
                 clonedGrid[i, j] = grid[i, j];
             }
         }
-        return new Grid(clonedGrid);
+        return new Grid(clonedGrid, startBoxes);
     }
     public bool IsCellEmpty((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return false;
         }
-        return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Empty;
+        return GetCellBoxType(coordinates) == (int) Constants.BoxTypes.Empty;
     }
     public bool IsCellGoal((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return false;
         }
-        return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Goal;
+        return GetCellBoxType(coordinates) == (int) Constants.BoxTypes.Goal;
     }
 
     public bool IsCellSublevel((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return false;
         }
-        return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Sublevel;
+        return GetCellBoxType(coordinates) == (int) Constants.BoxTypes.Sublevel;
     }
     public bool IsCellBlocked((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return false;
         }
-        return Constants.boxTypeProps[grid[coordinates.x, coordinates.y]].isBlockable;
+        return Constants.boxTypeProps[GetCellBoxType(coordinates)].isBlockable;
     }
 
     public bool IsCellPushable((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return false;
         }
-        return Constants.boxTypeProps[grid[coordinates.x, coordinates.y]].isPushable;
+        return Constants.boxTypeProps[GetCellBoxType(coordinates)].isPushable;
     }
 
     public int GetCellBoxType((int x, int y) coordinates) {
         if (!IsValidCoordinates(coordinates)) {
             return -1;
         }
-        return grid[coordinates.x, coordinates.y];
+        if (grid[coordinates.x, coordinates.y] == -1) {
+            return (int) Constants.BoxTypes.Empty;
+        }
+        return (int) startBoxes[grid[coordinates.x, coordinates.y]].boxType;
     }
 
     bool IsValidCoordinates((int x, int y) coordinates) {
@@ -97,9 +110,10 @@ public class Grid : ICloneable
         return isValid;
     }
     
-    public void SetCellInGrid((int x, int y) coordinates, Constants.BoxTypes boxType) {
+    // Set by the startBoxesIndex
+    public void SetCellInGrid((int x, int y) coordinates, int startBoxesIndex = -1) {
         if (IsValidCoordinates(coordinates)) {
-            grid[coordinates.x, coordinates.y] = (int) boxType;
+            grid[coordinates.x, coordinates.y] = startBoxesIndex;
         }
     }
 }

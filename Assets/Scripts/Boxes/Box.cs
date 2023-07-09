@@ -7,6 +7,8 @@ using UnityEngine;
 public class Box: MonoBehaviour
 {
     Level level;
+    // Index of the box in the startBoxes array.
+    public int index;
     // Coordinates of the box in the grid.
     public (int x, int y) position;
     // The type of box.
@@ -18,6 +20,8 @@ public class Box: MonoBehaviour
     public int otherProperty = -1;
     // If another box is linked to this box, e.g.: the door related to the button.
     public Box otherBox;
+    // If updates to the door needs to be made for that box, else null.
+    public Door doorManager;
     void Awake() {
         position.x = (int) transform.position.x;
         position.y = (int) transform.position.y;
@@ -32,7 +36,7 @@ public class Box: MonoBehaviour
     // Moves the box in a direction, with tweening.
     public void MoveBox((int x, int y) direction, Grid currentGrid = null) {
         // By default, it assumes that nothing is in that cell when it leaves, so the order of box movement matters.
-        currentGrid?.SetCellInGrid(position, Constants.BoxTypes.Empty);
+        currentGrid?.SetCellInGrid(position);
         
         // Move the current position
         position.x += direction.x;
@@ -49,7 +53,7 @@ public class Box: MonoBehaviour
             level.UpdateCurrentPosition(position);
         }
 
-        currentGrid?.SetCellInGrid(position, boxType);
+        currentGrid?.SetCellInGrid(position, index);
     }
 
     // Moves the box the a position, with tweening.
@@ -59,7 +63,7 @@ public class Box: MonoBehaviour
 
     // This doesn't use tweening!
     public void SetPosition((int x, int y) position, Grid currentGrid = null) {
-        currentGrid?.SetCellInGrid(this.position, Constants.BoxTypes.Empty);
+        currentGrid?.SetCellInGrid(this.position);
 
         this.position = position;
         transform.position = new(position.x, position.y);
@@ -70,7 +74,7 @@ public class Box: MonoBehaviour
             level.UpdateCurrentPosition(position);
         }
 
-        currentGrid?.SetCellInGrid(position, boxType);
+        currentGrid?.SetCellInGrid(position, index);
     }
 
     public bool IsAtCoordinates((int x, int y) coordinates) {
