@@ -11,6 +11,7 @@ public class Door : MonoBehaviour
     [SerializeField]
     Sprite closedSprite;
     Box box;
+    AudioManager audioManager;
 
     // Start is called before the first frame update
     void Start()
@@ -22,17 +23,24 @@ public class Door : MonoBehaviour
             Debug.LogError("No Box found for the Door!");
         }
         box.doorManager = this;
+
+        audioManager = FindObjectOfType<AudioManager>();
+        if (audioManager == null) {
+            Debug.LogWarning("No audio manager found!");
+        }
     }
 
     public void OpenDoorTransition() {
         spriteRenderer.sprite = openSprite;
 
         // Play sound
+        audioManager.PlayDooropen();
     }
 
     public void CloseDoorTransition() {
         spriteRenderer.sprite = closedSprite;
 
         // Play sound
+        audioManager.PlayDoorclose();
     }
 }

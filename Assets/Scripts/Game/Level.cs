@@ -28,6 +28,7 @@ public class Level : MonoBehaviour
     UI ui;
     SceneLoader sceneLoader;
     DoorHelper doorManager;
+    AudioManager audioManager;
 
     // Start is called before the first frame update
     void Start()
@@ -99,6 +100,12 @@ public class Level : MonoBehaviour
         if (sceneLoader == null) {
             Debug.LogError("No sceneLoader found!");
         }
+    
+        // Find audioManager
+        audioManager = FindObjectOfType<AudioManager>();
+        if (audioManager == null) {
+            Debug.LogError("No audioManager found!");
+        }
 
         // Find doors
         doorManager = new(ref startBoxes);
@@ -120,6 +127,7 @@ public class Level : MonoBehaviour
 
         if (levelHistory.IsOtherControllableBox(newPosition)) {
             // move the active position only and switch the active box.
+            audioManager.PlayBoxswitch();
             UpdateCurrentPosition(newPosition);
             SwitchActiveBox(newPosition);
             return false;
@@ -127,6 +135,7 @@ public class Level : MonoBehaviour
         
         // Validation
         if (levelHistory.IsCellBlocked(newPosition)) {
+            audioManager.PlayCannot();
             return false;
         }
 
@@ -134,12 +143,14 @@ public class Level : MonoBehaviour
         levelHistory.PushToHistory();
 
         // Move box and update grid
+        audioManager.PlayBoxmove();
         UpdateCurrentPosition(newPosition);
         activeBox.MoveBox(direction, levelHistory.currentGrid);
 
         // Check if sublevel
         if (levelHistory.AtSublevelPortal()) {
             // load sublevel based on otherProperty of the box found
+            audioManager.PlaySublevel();
             Game.currentState = Game.GameStates.Transition;
             Box b = BoxHelper.GetBox(levelHistory.currentPosition, ref startBoxes);
             ui.LoadingSublevelTransition(() => StartCoroutine(sceneLoader.LoadSublevelIndex(b.otherProperty)));
@@ -203,6 +214,7 @@ public class Level : MonoBehaviour
                 newPosition = prevPosition;
             }
             // can move
+            audioManager.PlayPlayermove();
             player.MovePlayer(levelHistory.currentGrid);
             break;
         }
@@ -212,6 +224,7 @@ public class Level : MonoBehaviour
 
         // Check if goal reached!
         if (player.IsAtGoal(levelHistory)) {
+            audioManager.PlayGoal();
             ui.LevelCompleteTransition(() => StartCoroutine(sceneLoader.LoadPreviousScene()));
         }
     }
