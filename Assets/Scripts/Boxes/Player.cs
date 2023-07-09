@@ -51,4 +51,14 @@ public class Player
         directionIndex = (directionIndex + 1) % Constants.directions.Length;
         currentDirection = Constants.directions[directionIndex];
     }
+    public bool IsAtGoal(LevelHistory level) {
+        if (!level.staticGrid.IsCellGoal(box.position)) {
+            return false;
+        }
+    
+        // Trigger completion state
+        Game.currentState = Game.GameStates.Won;
+
+        return true;
+    }
 }

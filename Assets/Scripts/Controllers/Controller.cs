@@ -22,6 +22,10 @@ public class Controller : MonoBehaviour
             return;
         }
 
+        if (Game.currentState != Game.GameStates.Ongoing) {
+            return;
+        }
+
         if (Input.GetKeyDown(Constants.undo)) {
             currentLevel.Undo();
         }

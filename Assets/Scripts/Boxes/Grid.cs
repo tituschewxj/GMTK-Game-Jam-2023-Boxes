@@ -11,8 +11,7 @@ public class Grid : ICloneable
 
     // Stores a 2D array of the box in every position in the grid.
     readonly int[,] grid;
-
-    public Grid(int width, int height, Box[] startBoxes, bool isStationary = false) {
+    public Grid(int width, int height, ref Box[] startBoxes, bool isStationary = false) {
         this.width = width;
         this.height = height;
         // New grid
@@ -36,6 +35,8 @@ public class Grid : ICloneable
         }
     }
     public Grid(int[,] grid) {
+        width = grid.GetLength(0);
+        height = grid.GetLength(1);
         this.grid = grid;
     }
     public object Clone()
@@ -53,6 +54,19 @@ public class Grid : ICloneable
             return false;
         }
         return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Empty;
+    }
+    public bool IsCellGoal((int x, int y) coordinates) {
+        if (!IsValidCoordinates(coordinates)) {
+            return false;
+        }
+        return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Goal;
+    }
+
+    public bool IsCellSublevel((int x, int y) coordinates) {
+        if (!IsValidCoordinates(coordinates)) {
+            return false;
+        }
+        return grid[coordinates.x, coordinates.y] == (int) Constants.BoxTypes.Sublevel;
     }
 
     public bool IsCellBlocked((int x, int y) coordinates) {

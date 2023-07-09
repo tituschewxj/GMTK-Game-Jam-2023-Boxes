@@ -7,19 +7,15 @@ public class Level : MonoBehaviour
     // Stores the width and height of the level.
     public int width, height;
 
-    // The current position of the controlled box.
-    (int x, int y) currentPosition;
+
 
     // Store the starting boxes
     Box[] startBoxes; // TODO: refactor to just store movable boxes.
 
-    // Store the grid history of the current level, which is just a grid of all the positions of the boxes
-    Stack<Grid> gridHistory;
-    Stack<(int x, int y)> positionHistory;
-    // Stores the current state of the level as a grid.
-    Grid currentGrid;
-    // Store the static boxes in the grid: the boxes that cannot move. This is not stored in the history.
-    Grid staticGrid;
+    // Stores history related information of the level
+    LevelHistory levelHistory;
+    Controller controller;
+
     // Stores whether transitions are happening; cannot move while transitioning
     public bool isInTransition;
     int transitionCount = 0;
@@ -31,24 +27,16 @@ public class Level : MonoBehaviour
     public Player player;
     [HideInInspector]
     public Box cursor;
-
-    Controller controller;
+    UI ui;
+    SceneLoader sceneLoader;
 
     // Start is called before the first frame update
     void Start()
     {
-        // Validate width and height;
-        if (width <= 0 || height <= 0) {
-            Debug.LogError("Invalid width or height for level!");
-        }
-
         // Get the initial state of the level:
         startBoxes = gameObject.GetComponentsInChildren<Box>();
-        currentGrid = new(width, height, startBoxes);
-        staticGrid = new(width, height, startBoxes, isStationary: true);
-    
-        gridHistory = new Stack<Grid>();
-        gridHistory.Push(currentGrid);
+        // New history for level:
+        levelHistory = new(width, height, ref startBoxes);
 
         // Find the active box:
         foreach (Box box in startBoxes) {
@@ -58,9 +46,8 @@ public class Level : MonoBehaviour
                     break;
                 }
                 activeBox = box;
-                currentPosition = activeBox.position;
-                positionHistory = new Stack<(int x, int y)>();
-                positionHistory.Push(currentPosition);
+                UpdateCurrentPosition(activeBox.position);
+                levelHistory.positionHistory.Push(levelHistory.currentPosition);
             }
         }
         if (activeBox == null) {
@@ -101,77 +88,54 @@ public class Level : MonoBehaviour
             Debug.LogError("No controller found!");
         }
         controller.SetCurrentLevel(this);
-    }
 
-    // Clear the grid history, restart the level to the start.
-    public void Clear() {
-        while (gridHistory.Count != 1) {
-            Undo(renderGrid: false);
+        // Find UI
+        ui = FindObjectOfType<UI>();
+        if (ui == null) {
+            Debug.LogError("No UI found!");
         }
-        // Render grid:
-    }
 
-    // Undo the last move.
-    public void Undo(bool renderGrid = true) {
-        if (gridHistory.Count <= 1) {
-            Debug.LogWarning("GridHistory cannot be empty! Cannot undo.");
+        // Find SceneLoader
+        sceneLoader = FindObjectOfType<SceneLoader>();
+        if (sceneLoader == null) {
+            Debug.LogError("No sceneLoader found!");
         }
-        gridHistory.Pop();
-        positionHistory.Pop();
-        currentGrid = gridHistory.Peek();
-        currentPosition = positionHistory.Peek();
 
-        // RenderGrid
-        if (renderGrid) {
-
-        }
+        // Update game state:
+        Game.currentState = Game.GameStates.Ongoing;
     }
 
-    // Snap the current state before the start of the player's next turn.
-    public void PushToHistory() {
-        gridHistory.Push((Grid) currentGrid.Clone());
-    }
 
     // Moves the box that is currently controlled
     // Returns whether the box really moves
     public bool MoveControlledBox((int x, int y) direction) {
-        (int x, int y) newPosition = currentPosition;
+        (int x, int y) newPosition = levelHistory.currentPosition;
         newPosition.x += direction.x;
         newPosition.y += direction.y;
 
-        if (IsOtherControllableBox(newPosition)) {
+        if (levelHistory.IsOtherControllableBox(newPosition)) {
             // move the active position only and switch the active box.
-            currentPosition = newPosition;
-            SwitchActiveBox(currentPosition);
+            UpdateCurrentPosition(newPosition);
+            SwitchActiveBox(newPosition);
             return false;
         }
         
         // Validation
-        if (IsCellBlocked(newPosition)) {
+        if (levelHistory.IsCellBlocked(newPosition)) {
             return false;
         }
 
-        // Move box
-        currentPosition = newPosition;
-        activeBox.MoveBox(direction, currentGrid);
+        // Move box and update grid
+        UpdateCurrentPosition(newPosition);
+        activeBox.MoveBox(direction, levelHistory.currentGrid);
 
-        // Update grid
+        // Check if sublevel
+        if (levelHistory.AtSublevelPortal()) {
+            // load sublevel based on otherProperty of the box found
+            Box b = GetBox(levelHistory.currentPosition, startBoxes);
+            ui.LoadingSublevelTransition(() => StartCoroutine(sceneLoader.LoadSublevelIndex(b.otherProperty)));
+        }
         return true;
-    }
-
-    public bool IsCellEmpty((int x, int y) coordinates) {
-        return currentGrid.IsCellEmpty(coordinates) && staticGrid.IsCellEmpty(coordinates);
-    }
-
-    public bool IsCellBlocked((int x, int y) coordinates) {
-        return currentGrid.IsCellBlocked(coordinates) || staticGrid.IsCellBlocked(coordinates);
-    }
-    public bool IsCellPushable((int x, int y) coordinates) {
-        return currentGrid.IsCellPushable(coordinates) || staticGrid.IsCellPushable(coordinates);
-    }
-
-    public bool IsOtherControllableBox((int x, int y) coordinates) {
-        return currentGrid.GetCellBoxType(coordinates) == (int) Constants.BoxTypes.BoxControllable;
     }
 
     // Switches the actively controlled box.
@@ -182,7 +146,7 @@ public class Level : MonoBehaviour
                 activeBox.isActiveBox = false;
                 startBoxes[i].isActiveBox = true;
                 activeBox = startBoxes[i];
-                currentPosition = coordinates;
+                UpdateCurrentPosition(coordinates);
                 cursor.MoveToPosition(coordinates);
                 return;
             }
@@ -202,10 +166,10 @@ public class Level : MonoBehaviour
         // Switch player direction if blocked
         for (int i = 0; i < Constants.directions.Length; i++) {
             // Iteratively check if the next box in line is pushable
-            while (IsCellPushable(newPosition)) {
+            while (levelHistory.IsCellPushable(newPosition)) {
                 newPosition = player.MoveInDirection(newPosition);
             }
-            if (IsCellBlocked(newPosition)) {
+            if (levelHistory.IsCellBlocked(newPosition)) {
                 // cannot move in that direction if blocked, switch direction.
                 player.SwitchDirection();
                 newPosition = player.GetNewPosition();
@@ -214,25 +178,30 @@ public class Level : MonoBehaviour
 
             // push all boxes in the line if any
             while (newPosition != player.GetNewPosition() ) {
-                // TODO: REFACTOR: push box. FIXME!
+                // TODO: REFACTOR: push box
                 // The order of the pushing has to be from the end
                 (int x, int y) prevPosition = player.MoveInDirection(newPosition, inverse: true);
                 for (int j = 0; j < startBoxes.Length; j++) {
                     if (startBoxes[j].IsAtCoordinates(prevPosition) && 
                         Constants.boxTypeProps[(int) startBoxes[j].boxType].isPushable) {
-                        startBoxes[j].MoveToPosition(newPosition, currentGrid);
+                        startBoxes[j].MoveToPosition(newPosition, levelHistory.currentGrid);
                         break;
                     }
                 }
                 newPosition = prevPosition;
             }
             // can move
-            player.MovePlayer(currentGrid);
+            player.MovePlayer(levelHistory.currentGrid);
             break;
         }
 
+        // Check if goal reached!
+        if (player.IsAtGoal(levelHistory)) {
+            ui.LevelCompleteTransition(() => StartCoroutine(sceneLoader.LoadPreviousScene()));
+        }
+    
         // Update history at the end of every player turn
-        PushToHistory();
+        levelHistory.PushToHistory();
     }
 
     // Tweening helpers
@@ -244,5 +213,22 @@ public class Level : MonoBehaviour
     public void StartMovement() {
         isInTransition = true;
         transitionCount++;
+    }
+
+    public void UpdateCurrentPosition((int x, int y) coordinates) {
+        levelHistory.UpdateCurrentPosition(coordinates);
+    }
+    public void Undo() {
+        levelHistory.Undo();
+    }
+
+    public Box GetBox((int x, int y) coordinates, Box[] boxes) {
+        for (int i = 0; i < boxes.Length; i++) {
+            if (boxes[i].position == coordinates && !Constants.boxTypeProps[(int) boxes[i].boxType].isIgnored) {
+                return boxes[i];
+            }
+        }
+        Debug.LogWarning("GetBox: No box found!");
+        return null;
     }
 }

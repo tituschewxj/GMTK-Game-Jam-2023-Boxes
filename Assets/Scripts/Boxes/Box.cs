@@ -13,6 +13,9 @@ public class Box: MonoBehaviour
     public Constants.BoxTypes boxType;
     // Represents the active box that is being controlled currently.
     public bool isActiveBox;
+    // Represents the an other property of the box, e.g.: sublevel index or button toggle door index, etc. 
+    // Can be unused: -1
+    public int otherProperty = -1;
     void Awake() {
         position.x = (int) transform.position.x;
         position.y = (int) transform.position.y;
@@ -26,6 +29,7 @@ public class Box: MonoBehaviour
 
     // Moves the box in a direction, with tweening.
     public void MoveBox((int x, int y) direction, Grid currentGrid = null) {
+        // By default, it assumes that nothing is in that cell when it leaves, so the order of box movement matters.
         currentGrid?.SetCellInGrid(position, Constants.BoxTypes.Empty);
         
         // Move the current position
@@ -34,12 +38,13 @@ public class Box: MonoBehaviour
     
         // Tween
         level.StartMovement();
-        LeanTween.move(gameObject, new Vector3(position.x, position.y), Constants.transitionTime).
+        LeanTween.move(gameObject, new Vector2(position.x, position.y), Constants.transitionTime).
             setOnComplete(level.FinishMovement);
         
-        // If active box, also move cursor
+        // If active box, also move cursor and set new currentPosition. There is only one active box.
         if (isActiveBox) {
             level.cursor.MoveBox(direction);
+            level.UpdateCurrentPosition(position);
         }
 
         currentGrid?.SetCellInGrid(position, boxType);
@@ -60,6 +65,7 @@ public class Box: MonoBehaviour
         // If active box, also move cursor
         if (isActiveBox) {
             level.cursor.SetPosition(position);
+            level.UpdateCurrentPosition(position);
         }
 
         currentGrid?.SetCellInGrid(position, boxType);

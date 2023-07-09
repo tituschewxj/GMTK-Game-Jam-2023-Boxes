@@ -19,8 +19,12 @@ public static class Constants
         moveLeft = directions[2],
         moveDown = directions[3];
 
-    // Stores the transition time for each transition.
+    // Stores the transition time for each box transition.
     public readonly static float transitionTime = 0.05f;
+
+    // Transition time for menu items
+    public readonly static float levelCompleteTransitionTime = 0.5f;
+    public readonly static float levelCompleteNextLevelLoadTime = 0.5f;
 
     // Stores the keys input.
     public readonly static KeyCode 
