@@ -65,14 +65,14 @@ public class Box: MonoBehaviour
     }
 
     // This doesn't use tweening!
-    public void SetPosition((int x, int y) position, Grid currentGrid = null) {
+    public void SetPosition((int x, int y) position, Grid currentGrid = null, bool ignoreActiveBox = false) {
         currentGrid?.SetCellInGrid(this.position);
 
         this.position = position;
         transform.position = new(position.x, position.y);
 
         // If active box, also move cursor
-        if (isActiveBox) {
+        if (isActiveBox && !ignoreActiveBox) {
             level.cursor.SetPosition(position);
             level.UpdateCurrentPosition(position);
         }

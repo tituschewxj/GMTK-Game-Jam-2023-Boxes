@@ -123,7 +123,7 @@ public class Grid : ICloneable
         for (int i = 0; i < grid.GetLength(0); i++) {
             for (int j = 0; j < grid.GetLength(1); j++) {
                 if (grid[i, j] == -1) continue;
-                startBoxes[grid[i, j]].SetPosition((i, j), this);
+                startBoxes[grid[i, j]].SetPosition((i, j), this, ignoreActiveBox: true);
             }
         }
     }

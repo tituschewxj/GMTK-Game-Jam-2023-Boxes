@@ -169,7 +169,7 @@ public class Level : MonoBehaviour
             if (startBoxes[i].IsAtCoordinates(coordinates) && Constants.boxTypeProps[(int) startBoxes[i].boxType].isControllable) {
                 activeBox.isActiveBox = false;
                 startBoxes[i].isActiveBox = true;
-                activeBox = startBoxes[i];
+                activeBox = BoxHelper.GetBoxByIndex(i, ref startBoxes);
                 UpdateCurrentPosition(coordinates);
                 cursor.MoveToPosition(coordinates);
                 return;
@@ -247,18 +247,25 @@ public class Level : MonoBehaviour
     public void Undo() {
         if (!levelHistory.Undo()) {
             audioManager.PlayCannot();
+            return;
         }
-        player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
-        activeBox.SetPosition(levelHistory.currentPosition);
-        cursor.SetPosition(levelHistory.currentPosition);
-        doorManager.UpdateDoors(levelHistory);
+        Rerender();
     }
 
     public void Restart() {
         levelHistory.Clear();
+        Rerender();
+    }
+    void Rerender() {
         player.SetDirectionByIndex(levelHistory.currentPlayerDirection);
-        activeBox.SetPosition(levelHistory.currentPosition);
+
+        // Get new active box, using the currentPosition:
         cursor.SetPosition(levelHistory.currentPosition);
+        activeBox.isActiveBox = false;
+        int i = BoxHelper.GetBoxIndex(levelHistory.currentPosition, ref startBoxes);
+        activeBox = BoxHelper.GetBoxByIndex(i, ref startBoxes);
+        activeBox.isActiveBox = true;
+        
         doorManager.UpdateDoors(levelHistory);
     }
 }
