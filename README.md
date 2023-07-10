@@ -4,20 +4,19 @@ A game made my myself under 48 hours in the [GMTK Game Jam 2023](https://itch.io
 
 The game is about controlling boxes, instead of controlling the player. The goal of the game is to get the player to reach to goal. However, you cannot control the player. It is up to the boxes to control how the player can arrive at the goal.
 
----
 ## Features
 
 - 10 levels of gameplay
 - Interesting control mechanics: instead of pushing boxes, you control the boxes
 - Undo functionality: allows for the undoing of moves
 
----
-### Packages
+
+## Packages
 
 - [LeanTween](https://assetstore.unity.com/packages/tools/animation/leantween-3595)
 
----
-### Tools used
+
+## Tools used
 
 - [Unity](https://unity.com/)
 - [Aseprite](https://www.aseprite.org/)
@@ -25,7 +24,6 @@ The game is about controlling boxes, instead of controlling the player. The goal
 - [Bosca Ceoil](https://boscaceoil.net/)
 - [BFXR](https://www.bfxr.net/)
 
----
-### Credits
+## Credits
 
 - [Platinum Sign Font by imagex](https://www.dafont.com/platinum-sign.font)
